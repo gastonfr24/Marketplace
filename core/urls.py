@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls.conf import include
-from .views import HomeView, UserProductListView
+from .views import HomeView, UserProductListView, ProductUpdateView, ProductDetailView
 
 
 urlpatterns = [
@@ -13,6 +13,8 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('users/', include('accounts.urls', namespace='users')),
     path('my-products/', UserProductListView.as_view(), name='product-list'),
+    path('product/<slug>/update/', ProductUpdateView.as_view(), name='product-update'),
+    path('prodcut/<slug>/', ProductDetailView.as_view(), name='detail')
 ]
 
 if settings.DEBUG:

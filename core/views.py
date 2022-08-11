@@ -1,10 +1,14 @@
 from pydoc import describe
-from django.shortcuts import render, redirect
+from tracemalloc import get_object_traceback
+from urllib import request
+from django.shortcuts import render, redirect, get_object_or_404
 from marketplace.models import Product
 from django.views import View
 from django.core.paginator import Paginator
-from marketplace.forms import ProductModelForm
+from marketplace.forms import ProductModelForm, EditProductModelForm
 from django.views.generic.edit import UpdateView
+from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 class HomeView(View):
     def get(self,request,*args, **kwargs):
@@ -72,5 +76,23 @@ class UserProductListView(View):
 
         return render(request, 'pages/products/user_productlist.html', context)
 
-class ProductUpdateView(UpdateView):
-    pass
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    template_name= "pages/products/edit_product.html"
+    form_class = EditProductModelForm
+
+    def get_queryset(self):
+        return Product.objects.filter(user=self.request.user)
+    
+    def get_success_url(self):
+        return reverse('product-list')
+
+
+class ProductDetailView(View):
+    def get(self,request, slug, *args, **kwargs):
+        product = get_object_or_404(Product, slug=slug)
+
+        context ={
+            'product': product
+        }
+
+        return render(request,'pages/products/detail.html' , context)

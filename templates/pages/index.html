@@ -31,7 +31,9 @@
 
             {% for product in products %}
             <div class="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
-                <img class="object-cover w-full rounded-md h-72 xl:h-80" src="{{product.thumbnail.url}}" alt="T-Shirt">
+              <a href="{% url 'detail' product.slug %}">
+                <img class="object-cover w-full rounded-md h-72 xl:h-80 scale-100 transition-all duration-400 hover:scale-90 " src="{{product.thumbnail.url}}" alt="image-prodcut">
+              </a>
                 <h4 class="mt-2 text-lg font-medium text-gray-700 dark:text-gray-900">{{product.name}}</h4>
                  <h2 class="tracking-widest text-xs title-font font-medium text-gray-400 mb-1">CATEGORY-1</h2>
 
