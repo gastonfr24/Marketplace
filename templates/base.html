@@ -1,0 +1,24 @@
+{% load static tailwind_tags%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% tailwind_css %}
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+
+</head>
+<body>
+{% block navbar %}{% endblock navbar %}
+{% include 'messages.html' %}
+{% block content %}{% endblock content %}
+
+{% block footer %}{% endblock footer %}
+
+{% block javascript %}{% endblock javascript %}
+</body>
+</html>
