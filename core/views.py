@@ -1,3 +1,5 @@
+from itertools import product
+from json import JSONEncoder
 from pydoc import describe
 from tracemalloc import get_object_traceback
 from urllib import request
@@ -7,8 +9,14 @@ from django.views import View
 from django.core.paginator import Paginator
 from marketplace.forms import ProductModelForm, EditProductModelForm
 from django.views.generic.edit import UpdateView
+from django.views.generic import TemplateView
 from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+import stripe
+from django.conf import settings
+from django.http.response import JsonResponse
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class HomeView(View):
     def get(self,request,*args, **kwargs):
@@ -92,7 +100,39 @@ class ProductDetailView(View):
         product = get_object_or_404(Product, slug=slug)
 
         context ={
-            'product': product
+            'product': product,
         }
+        context.update({
+            'STRIPE_PUBLIC_KEY':settings.STRIPE_PUBLIC_KEY
+        })
 
-        return render(request,'pages/products/detail.html' , context)
+        return render(request,'pages/products/detail.html' , context,)
+
+class CreateCheckoutSessionView(View):
+    def post(self,request, *args, **kwargs):
+        product = Product.objects.get(slug=self.kwargs['slug'])
+
+
+        domain = 'http://127.0.0.1:8000'
+        session = stripe.checkout.Session.create(
+            line_items=[{
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                'name': product.name,
+                },
+                'unit_amount': product.price,
+            },
+            'quantity': 1,
+            }],
+            mode='payment',
+            success_url=domain + reverse('success'),
+            cancel_url=domain +reverse('home'),
+        )
+
+        return JsonResponse({
+            "id":session.id
+        })
+
+class SuccessView(TemplateView):
+    template_name='pages/products/success.html'

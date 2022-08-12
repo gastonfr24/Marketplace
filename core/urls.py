@@ -3,7 +3,8 @@ from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls.conf import include
-from .views import HomeView, UserProductListView, ProductUpdateView, ProductDetailView
+from .views import (HomeView, UserProductListView, ProductUpdateView, ProductDetailView,
+                     CreateCheckoutSessionView, SuccessView)
 
 
 urlpatterns = [
@@ -11,10 +12,13 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('marketplace/', include('marketplace.urls', namespace= 'marketplace')),
     path('', HomeView.as_view(), name='home'),
+    path('create-checkout-session/<slug>/', CreateCheckoutSessionView.as_view(), name="create-checkout-session"),
     path('users/', include('accounts.urls', namespace='users')),
     path('my-products/', UserProductListView.as_view(), name='product-list'),
     path('product/<slug>/update/', ProductUpdateView.as_view(), name='product-update'),
-    path('prodcut/<slug>/', ProductDetailView.as_view(), name='detail')
+    path('product/<slug>/', ProductDetailView.as_view(), name='detail'),
+    path('success/',SuccessView.as_view(), name='success'),
+    
 ]
 
 if settings.DEBUG:
