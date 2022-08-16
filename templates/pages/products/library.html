@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+{% include 'components/navbar.html' %}
+{% endblock navbar %}
+
+
+{% block content %}
+<!-- component -->
+<div class="overflow-x-auto">
+    <div class="min-w-screen min-h-screen bg-gray-100 flex items-center justify-center bg-gray-100 font-sans overflow-hidden">
+        <div class="w-full lg:w-5/6">
+            <div class="bg-white shadow-md rounded my-6">
+                <table class="min-w-max w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Product</th>
+                            <th class="py-3 px-6 text-left">Name</th>
+                            <th class="py-3 px-6 text-center">Category</th>
+                            <th class="py-3 px-6 text-center">Status</th>
+
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm font-light">
+                    
+                   {% for product in userlibrary.products.all %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left whitespace-nowrap">
+                                <div class="flex items-center">
+<a href="{% url 'detail' product.slug %}">
+<img class="h-30 w-24 object-cover" src="{{product.thumbnail.url}}" >
+</a>
+                                </div>
+                            </td>
+                            <td class="py-3 px-6 text-left">
+                                <div class="flex items-center">
+                                    <div class="mr-2">
+{{product.name}}
+                                </div>
+                            </td>
+
+                            <td class="py-3 px-6 text-center">
+                               
+
+                                <span class="bg-gray-200 text-green-800 py-1 px-3 rounded-full text-xs">Book/PDF</span>
+
+                            </td>
+                            <td class="py-3 px-6 text-center">
+                               
+
+                                <span class="bg-green-200 text-green-800 py-1 px-3 rounded-full text-xs">Download</span>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block footer %}
+
+{% endblock footer %}
+
+
+{% block javascript %}
+
+{% endblock javascript %}

@@ -2,6 +2,7 @@ from distutils.sysconfig import customize_compiler
 from itertools import product
 from json import JSONEncoder
 from msilib.schema import Signature
+from multiprocessing import context
 from pydoc import describe
 from signal import Signals
 from tracemalloc import get_object_traceback
@@ -22,7 +23,7 @@ from stripe.error import SignatureVerificationError
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
-
+from accounts.models import UserLibrary
 User = get_user_model()
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -97,7 +98,7 @@ class UserProductListView(View):
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     template_name= "pages/products/edit_product.html"
     form_class = EditProductModelForm
-
+    
     def get_queryset(self):
         return Product.objects.filter(user=self.request.user)
     
@@ -108,15 +109,22 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
 class ProductDetailView(View):
     def get(self,request, slug, *args, **kwargs):
         product = get_object_or_404(Product, slug=slug)
+        has_acces=None
+        if self.request.user.is_authenticated:
+            if product in self.request.user.library.products.all():
+                has_acces = True
 
         context ={
             'product': product,
+            'has_acces': has_acces
         }
         context.update({
             'STRIPE_PUBLIC_KEY':settings.STRIPE_PUBLIC_KEY
         })
 
         return render(request,'pages/products/detail.html' , context,)
+
+
 
 class CreateCheckoutSessionView(View):
     def post(self,request, *args, **kwargs):
@@ -127,7 +135,7 @@ class CreateCheckoutSessionView(View):
             domain = 'http://127.0.0.1:8000'
 
         customer = None
-        customize_email = None   
+        customer_email = None   
         if request.user.is_authenticated:
             if request.user.stripe_customer_id: 
                 customer = request.user.stripe_customer_id
@@ -206,7 +214,7 @@ def stripe_webhook(request, *args, **kwargs):
             # El ususario no tiene customed_id pero está registrado
             stripe_customer_email = event["data"]["object"]["customer_details"]["email"]
             try:
-                User = User.objects.get(email = stripe_customer_email)
+                user = User.objects.get(email = stripe_customer_email)
                 user.stripe_customer_id = stripe_customer_id
                 user.library.products.add(product)
                 user.library.save
@@ -224,3 +232,15 @@ def stripe_webhook(request, *args, **kwargs):
                 pass
 
         return HttpResponse()
+
+
+
+class UserLibraryView(LoginRequiredMixin,View):
+        def get(self,request, username,*args, **kwargs):
+            user = get_object_or_404(User, username = username)
+            userlibrary = UserLibrary.objects.get(user=user)
+            context={
+                'userlibrary':userlibrary,
+            }
+
+            return render(request, 'pages/products/library.html', context)
